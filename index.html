@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Custom-React</title>
+</head>
+
+<body>
+  
+  <div id="root"></div>
+
+  <script>
+    const state = {
+      date: new Date(),
+      lots: [{
+          id: 1,
+          title: "Apple",
+          price: 12,
+          text: "Lorem ipsum dolor sit, amet consectetur adipis"
+        },
+        {
+          id: 2,
+          title: "Samsung",
+          price: 451,
+          text: "Lorem ipsum dolor sit, amet consectetur adipis"
+        }
+      ]
+    }
+
+    function App(state) {
+      const app = document.createElement("div");
+      app.setAttribute("id", "app");
+      app.className = "app";
+
+      app.append(Header(), Clock(state.date), Lots(state.lots));
+      return app;
+    }
+
+    function Header() {
+      const header = document.createElement("header");
+      header.className = "header";
+      const image = document.createElement("img");
+      image.className = "logo";
+      image.setAttribute("src", "logo.png");
+
+      header.append(image);
+      return image;
+    }
+
+    function Clock(date) {
+      const clockEl = document.createElement("div");
+      clockEl.className = "clock";
+      clockEl.innerText = date.toLocaleTimeString();
+      return clockEl;
+    }
+
+    function Lots(lots) {
+      const lotsEl = document.createElement("div");
+      lotsEl.className = "lots";
+      lotsEl.append(...lots.map(lot => Lot(lot)));
+
+      return lotsEl;
+    }
+
+    function Lot({
+      id,
+      title,
+      price,
+      text
+    }) {
+      const lotEl = document.createElement("div");
+      lotEl.className = "lot";
+
+      const titleEl = document.createElement("h1");
+      titleEl.innerHTML = title;
+
+      const priceEl = document.createElement("p");
+      priceEl.innerText = price;
+
+      const textEl = document.createElement("p");
+      textEl.innerText = text;
+
+      lotEl.append(titleEl, priceEl, textEl);
+      return lotEl;
+    }
+
+    render(
+      App(state),
+      document.getElementById("root")
+    );
+
+    // Render function
+    function render(newDom, realDom) {
+      realDom.append(newDom);
+    }
+  </script>
+</body>
+
+</html>

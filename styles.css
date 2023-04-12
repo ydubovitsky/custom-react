@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  background-color: whitesmoke;
+}
+
+.app {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 20px;
+}
+
+.lots {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lot,
+.clock {
+  border: 1px solid silver;
+  min-width: 500px;
+  padding: 20px;
+  border-radius: 20px;
+}
