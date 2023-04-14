@@ -61,46 +61,94 @@
     }
 
     function App(state) {
-      const app = document.createElement("div");
-      app.setAttribute("id", "app");
-      app.className = "app";
-
-      app.append(Header(), Clock(state.date), Lots(state.lots));
-      return app;
+      return {
+        type: "div",
+        props: {
+          id: "app",
+          className: "app",
+          children: [{
+              type: Header
+            },
+            {
+              type: Clock,
+              props: {
+                date: state.date
+              }
+            },
+            {
+              type: Lots,
+              props: {
+                lots: state.lots
+              }
+            }
+          ]
+        }
+      }
     }
 
     function Header() {
-      const header = document.createElement("header");
-      header.className = "header";
-      const image = document.createElement("img");
-      image.className = "logo";
-      image.setAttribute("src", "logo.png");
-
-      header.append(image);
-      return image;
+      return {
+        type: "header",
+        props: {
+          className: "header",
+          children: {
+            type: "img",
+            props: {
+              className: "logo",
+              src: "logo.png"
+            }
+          }
+        }
+      }
     }
 
-    function Clock(date) {
-      const clockEl = document.createElement("div");
-      clockEl.className = "clock";
-      clockEl.innerText = date.toLocaleTimeString();
-      return clockEl;
+    function Clock({
+      date
+    }) {
+      return {
+        type: "div",
+        props: {
+          className: "clock",
+          children: {
+            date
+          }
+        }
+      }
     }
 
-    function Lots(lots) {
-      const lotsEl = document.createElement("div");
-      lotsEl.className = "lots";
+    function Loading({
+      text
+    }) {
+      return {
+        type: "span",
+        props: {
+          innerText: text
+        }
+      }
+    }
 
+    function Lots({
+      lots
+    }) {
       if (lots == null) {
-        const notification = document.createElement("p");
-        notification.innerText = "Loading...";
-        lotsEl.append(notification);
-      } else {
-        lotsEl.append(...lots.map(lot => Lot(lot)));
+        return {
+          type: Loading,
+          props: {
+            text: "Loading"
+          }
+        }
       }
 
-
-      return lotsEl;
+      return {
+        type: "div",
+        props: {
+          className: "lots",
+          children: lots.map(lot => ({
+            type: Lot,
+            props: lot
+          }))
+        }
+      }
     }
 
     function Lot({
@@ -109,22 +157,39 @@
       price,
       text
     }) {
-      const lotEl = document.createElement("article");
-      lotEl.className = "lot";
-
-      lotEl.dataset.key = id;
-      
-      const titleEl = document.createElement("h1");
-      titleEl.innerHTML = title;
-
-      const priceEl = document.createElement("p");
-      priceEl.innerText = price;
-
-      const textEl = document.createElement("p");
-      textEl.innerText = text;
-
-      lotEl.append(titleEl, priceEl, textEl);
-      return lotEl;
+      return {
+        type: "article",
+        key: id,
+        props: {
+          className: "lot",
+          key: id,
+          children: [{
+              type: "h1",
+              props: {
+                children: {
+                  title
+                }
+              }
+            },
+            {
+              type: "p",
+              props: {
+                children: {
+                  price
+                }
+              }
+            },
+            {
+              type: "p",
+              props: {
+                children: {
+                  text
+                }
+              }
+            }
+          ]
+        }
+      }
     }
 
     // Change date every second
@@ -168,9 +233,14 @@
 
     // Render function
     function render(virtualDom, realDom) {
-      const virtualDomRootNode = document.createElement(realDom.tagName);
-      virtualDomRootNode.id = realDom.id;
-      virtualDomRootNode.append(virtualDom);
+      const virtualDomRootNode = {
+        type: realDom.tagName.toLowerCase(),
+        props: {
+          id: realDom.id,
+          ...realDom.attributes,
+          children: virtualDom
+        }
+      }
 
       sync(virtualDomRootNode, realDom);
 
@@ -202,28 +272,30 @@
       const realNodeChildren = realNode.childNodes;
       const virtualNodeChildren = virtualNode.childNodes;
 
-      for(let i = 0; i < virtualNodeChildren.length || i < realNodeChildren.length; i++) {
+      for (let i = 0; i < virtualNodeChildren.length || i < realNodeChildren.length; i++) {
         let realChildNode = realNodeChildren[i];
         let virtualChildNode = virtualNodeChildren[i];
         // remove
-        if(realChildNode !== undefined && virtualChildNode == undefined) {
+        if (realChildNode !== undefined && virtualChildNode == undefined) {
           realNode.remove(realChildNode);
         }
 
         // update
-        if(realChildNode !== undefined && virtualChildNode !== undefined && realChildNode.tagName === virtualChildNode.tagName) {
+        if (realChildNode !== undefined && virtualChildNode !== undefined && realChildNode.tagName === virtualChildNode
+          .tagName) {
           sync(virtualChildNode, realChildNode);
         }
 
         // replace
-        if(realChildNode !== undefined && virtualChildNode !== undefined && realChildNode.tagName !== virtualChildNode.tagName) {
+        if (realChildNode !== undefined && virtualChildNode !== undefined && realChildNode.tagName !== virtualChildNode
+          .tagName) {
           const newRealChild = createRealNodeFromVirtualNode(virtualChildNode);
           sync(newRealChild, realChildNode);
           realNode.replaceChild(newRealChild, realChildNode);
         }
 
         // add
-        if(virtualChildNode != undefined && realChildNode == undefined) {
+        if (virtualChildNode != undefined && realChildNode == undefined) {
           const newReal = createRealNodeFromVirtualNode(virtualChildNode)
           realNode.append(newReal);
         }
